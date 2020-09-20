@@ -216,6 +216,12 @@ public:
   real_t ev_theta(BSSNData *bd, const real_t dx[]);
   real_t ev_H(BSSNData *bd, const real_t dx[]);
   real_t ev_a(BSSNData *bd, const real_t dx[]);
+  real_t ev_h11(BSSNData *bd, const real_t dx[]);
+  real_t ev_h12(BSSNData *bd, const real_t dx[]);
+  real_t ev_h13(BSSNData *bd, const real_t dx[]);
+  real_t ev_h22(BSSNData *bd, const real_t dx[]);
+  real_t ev_h23(BSSNData *bd, const real_t dx[]);
+  real_t ev_h33(BSSNData *bd, const real_t dx[]);
 
 #   if USE_BSSN_SHIFT
   real_t ev_beta1(BSSNData *bd, const real_t dx[]);
@@ -261,6 +267,12 @@ public:
   real_t ev_theta_bd(BSSNData *bd, const real_t dx[], idx_t l_idx, idx_t codim);
   real_t ev_H_bd(BSSNData *bd, const real_t dx[], idx_t l_idx, idx_t codim);
   real_t ev_a_bd(BSSNData *bd, const real_t dx[], idx_t l_idx, idx_t codim);
+  real_t ev_h11_bd(BSSNData *bd, const real_t dx[], idx_t l_idx, idx_t codim);
+  real_t ev_h12_bd(BSSNData *bd, const real_t dx[], idx_t l_idx, idx_t codim);
+  real_t ev_h13_bd(BSSNData *bd, const real_t dx[], idx_t l_idx, idx_t codim);
+  real_t ev_h22_bd(BSSNData *bd, const real_t dx[], idx_t l_idx, idx_t codim);
+  real_t ev_h23_bd(BSSNData *bd, const real_t dx[], idx_t l_idx, idx_t codim);
+  real_t ev_h33_bd(BSSNData *bd, const real_t dx[], idx_t l_idx, idx_t codim);
 
 #   if USE_BSSN_SHIFT
   real_t ev_beta1_bd(BSSNData *bd, const real_t dx[], idx_t l_idx, idx_t codim);

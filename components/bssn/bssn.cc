@@ -1044,8 +1044,6 @@ void BSSN::K4FinalizePatch(
   }
 }
 
-
-
 /*
 ******************************************************************************
 
@@ -1058,6 +1056,21 @@ void BSSN::K4FinalizePatch(
 void BSSN::set_bd_values_bd(
   idx_t i, idx_t j, idx_t k, BSSNData *bd, const real_t dx[])
 {
+#if USE_SOMMERFIELD_BOUNDARY
+  bd->h11 = h11_a(i,j,k);
+  bd->h12 = h12_a(i,j,k);
+  bd->h13 = h13_a(i,j,k);
+  bd->h22 = h22_a(i,j,k);
+  bd->h23 = h23_a(i,j,k);
+  bd->h33 = h33_a(i,j,k);
+  /* Auxilary Field */
+  bd->w11 = w11_a(i,j,k);
+  bd->w12 = w12_a(i,j,k);
+  bd->w13 = w13_a(i,j,k);
+  bd->w22 = w22_a(i,j,k);
+  bd->w23 = w23_a(i,j,k);
+  bd->w33 = w33_a(i,j,k);
+#endif 
 }
 
 /**
@@ -1074,7 +1087,19 @@ void BSSN::set_bd_values(idx_t i, idx_t j, idx_t k, BSSNData *bd, const real_t d
   bd->i = i;
   bd->j = j;
   bd->k = k;
-  
+  bd->h11 = h11_a(i,j,k);
+  bd->h12 = h12_a(i,j,k);
+  bd->h13 = h13_a(i,j,k);
+  bd->h22 = h22_a(i,j,k);
+  bd->h23 = h23_a(i,j,k);
+  bd->h33 = h33_a(i,j,k);
+  /* Auxilary Field */
+  bd->w11 = w11_a(i,j,k);
+  bd->w12 = w12_a(i,j,k);
+  bd->w13 = w13_a(i,j,k);
+  bd->w22 = w22_a(i,j,k);
+  bd->w23 = w23_a(i,j,k);
+  bd->w33 = w33_a(i,j,k);  
   // need to set FRW quantities first
 
   //Have not figured out the initial value of FRW 

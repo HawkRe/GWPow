@@ -1397,6 +1397,55 @@ real_t BSSN::ev_a(BSSNData *bd, const real_t dx[])
   return bd->a * bd->H;
 }
 
+real_t BSSN::ev_h11(SSNData *bd, const real_t dx[])
+{
+  return 0;
+}
+real_t BSSN::ev_h12(SSNData *bd, const real_t dx[])
+{
+  return 0;
+}
+real_t BSSN::ev_h13(SSNData *bd, const real_t dx[])
+{
+  return 0;
+}
+real_t BSSN::ev_h22(SSNData *bd, const real_t dx[])
+{
+  return 0;
+}
+real_t BSSN::ev_h23(SSNData *bd, const real_t dx[])
+{
+  return 0;
+}
+real_t BSSN::ev_h33(SSNData *bd, const real_t dx[])
+{
+  return 0;
+}
+real_t BSSN::ev_w11(SSNData *bd, const real_t dx[])
+{
+  return 0;
+}
+real_t BSSN::ev_w12(SSNData *bd, const real_t dx[])
+{
+  return 0;
+}
+real_t BSSN::ev_w13(SSNData *bd, const real_t dx[])
+{
+  return 0;
+}
+real_t BSSN::ev_w22(SSNData *bd, const real_t dx[])
+{
+  return 0;
+}
+real_t BSSN::ev_w23(SSNData *bd, const real_t dx[])
+{
+  return 0;
+}
+real_t BSSN::ev_w33(SSNData *bd, const real_t dx[])
+{
+  return 0;
+}
+
 /*
 ******************************************************************************
 Evolution equation calculations at boundary

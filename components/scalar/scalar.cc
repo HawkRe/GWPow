@@ -600,7 +600,19 @@ void Scalar::getScalarData(
 {
   sd->phi = phi_a(i, j, k);
   sd->Pi = Pi_a(i, j, k);
-
+  sd->h11 = h11_a(i,j,k);
+  sd->h12 = h12_a(i,j,k);
+  sd->h13 = h13_a(i,j,k);
+  sd->h22 = h22_a(i,j,k);
+  sd->h23 = h23_a(i,j,k);
+  sd->h33 = h33_a(i,j,k);
+  /* Auxilary Field */
+  sd->w11 = w11_a(i,j,k);
+  sd->w12 = w12_a(i,j,k);
+  sd->w13 = w13_a(i,j,k);
+  sd->w22 = w22_a(i,j,k);
+  sd->w23 = w23_a(i,j,k);
+  sd->w33 = w33_a(i,j,k); 
   sd->d1phi = derivative(i, j, k, 1, phi_a, dx);
   sd->d2phi = derivative(i, j, k, 2, phi_a, dx);
   sd->d3phi = derivative(i, j, k, 3, phi_a, dx);
@@ -612,6 +624,19 @@ void Scalar::getScalarDataBd(
 #if USE_SOMMERFIELD_BOUNDARY
   sd->phi = phi_a(i, j, k);
   sd->Pi = Pi_a(i, j, k);
+  sd->h11 = h11_a(i,j,k);
+  sd->h12 = h12_a(i,j,k);
+  sd->h13 = h13_a(i,j,k);
+  sd->h22 = h22_a(i,j,k);
+  sd->h23 = h23_a(i,j,k);
+  sd->h33 = h33_a(i,j,k);
+  /* Auxilary Field */
+  sd->w11 = w11_a(i,j,k);
+  sd->w12 = w12_a(i,j,k);
+  sd->w13 = w13_a(i,j,k);
+  sd->w22 = w22_a(i,j,k);
+  sd->w23 = w23_a(i,j,k);
+  sd->w33 = w33_a(i,j,k);
 #endif
 }
 
@@ -632,6 +657,66 @@ real_t Scalar::ev_Pi(BSSNData *bd, ScalarData *sd, const real_t dx[])
     - potentialHandler->ev_der_potential(bd, sd)
   )
     - KO_dissipation_Q(bd->i, bd->j, bd->k, Pi_a, dx, KO_damping_coefficient);
+}
+
+real_t Scalar::ev_h11(BSSNData *bd, ScalarData *sd, const real_t dx[])
+{
+  return 0;
+}
+
+real_t Scalar::ev_h12(BSSNData *bd, ScalarData *sd, const real_t dx[])
+{
+  return 0;
+}
+
+real_t Scalar::ev_h13(BSSNData *bd, ScalarData *sd, const real_t dx[])
+{
+  return 0;
+}
+
+real_t Scalar::ev_h22(BSSNData *bd, ScalarData *sd, const real_t dx[])
+{
+  return 0;
+}
+
+real_t Scalar::ev_h23(BSSNData *bd, ScalarData *sd, const real_t dx[])
+{
+  return 0;
+}
+
+real_t Scalar::ev_h33(BSSNData *bd, ScalarData *sd, const real_t dx[])
+{
+  return 0;
+}
+
+real_t Scalar::ev_w11(BSSNData *bd, ScalarData *sd, const real_t dx[])
+{
+  return 0;
+}
+
+real_t Scalar::ev_w12(BSSNData *bd, ScalarData *sd, const real_t dx[])
+{
+  return 0;
+}
+
+real_t Scalar::ev_w13(BSSNData *bd, ScalarData *sd, const real_t dx[])
+{
+  return 0;
+}
+
+real_t Scalar::ev_w22(BSSNData *bd, ScalarData *sd, const real_t dx[])
+{
+  return 0;
+}
+
+real_t Scalar::ev_w23(BSSNData *bd, ScalarData *sd, const real_t dx[])
+{
+  return 0;
+}
+
+real_t Scalar::ev_w33(BSSNData *bd, ScalarData *sd, const real_t dx[])
+{
+  return 0;
 }
 
 

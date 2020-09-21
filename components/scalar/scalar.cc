@@ -662,62 +662,98 @@ real_t Scalar::ev_Pi(BSSNData *bd, ScalarData *sd, const real_t dx[])
 
 real_t Scalar::ev_h11(BSSNData *bd, ScalarData *sd, const real_t dx[])
 {
-  return 0;
+  return (
+    sd->w11
+  )
+    - KO_dissipation_Q(bd->i, bd->j, bd->k, h11_a, dx, KO_damping_coefficient);
 }
 
 real_t Scalar::ev_h12(BSSNData *bd, ScalarData *sd, const real_t dx[])
 {
-  return 0;
+  return (
+    sd->w12
+  )
+    - KO_dissipation_Q(bd->i, bd->j, bd->k, h12_a, dx, KO_damping_coefficient);
 }
 
 real_t Scalar::ev_h13(BSSNData *bd, ScalarData *sd, const real_t dx[])
 {
-  return 0;
+  return (
+    sd->w13
+  )
+    - KO_dissipation_Q(bd->i, bd->j, bd->k, h13_a, dx, KO_damping_coefficient);
 }
 
 real_t Scalar::ev_h22(BSSNData *bd, ScalarData *sd, const real_t dx[])
 {
-  return 0;
+  return (
+    sd->w22
+  )
+    - KO_dissipation_Q(bd->i, bd->j, bd->k, h22_a, dx, KO_damping_coefficient);
 }
 
 real_t Scalar::ev_h23(BSSNData *bd, ScalarData *sd, const real_t dx[])
 {
-  return 0;
+  return (
+    sd->w23
+  )
+    - KO_dissipation_Q(bd->i, bd->j, bd->k, h23_a, dx, KO_damping_coefficient);
 }
 
 real_t Scalar::ev_h33(BSSNData *bd, ScalarData *sd, const real_t dx[])
 {
-  return 0;
+  return (
+    sd->w33
+  )
+    - KO_dissipation_Q(bd->i, bd->j, bd->k, h33_a, dx, KO_damping_coefficient);
 }
 
 real_t Scalar::ev_w11(BSSNData *bd, ScalarData *sd, const real_t dx[])
 {
-  return 
+  return (-3.0 * bd->H * sd->w11 + laplacian(bd->i, bd->j, bd->k, h11_a, dx) / pw2(bd->a) 
+  + 16 * PI * sd->d1phi * sd->d1phi 
+  ) 
+    - KO_dissipation_Q(bd->i, bd->j, bd->k, w11_a, dx, KO_damping_coefficient);
 }
 
 real_t Scalar::ev_w12(BSSNData *bd, ScalarData *sd, const real_t dx[])
 {
-  return 0;
+  return (-3.0 * bd->H * sd->w12 + laplacian(bd->i, bd->j, bd->k, h12_a, dx) / pw2(bd->a) 
+  + 16 * PI * sd->d1phi * sd->d2phi 
+  ) 
+    - KO_dissipation_Q(bd->i, bd->j, bd->k, w12_a, dx, KO_damping_coefficient);
 }
 
 real_t Scalar::ev_w13(BSSNData *bd, ScalarData *sd, const real_t dx[])
 {
-  return 0;
+  return (-3.0 * bd->H * sd->w13 + laplacian(bd->i, bd->j, bd->k, h13_a, dx) / pw2(bd->a) 
+  + 16 * PI * sd->d1phi * sd->d3phi 
+  ) 
+    - KO_dissipation_Q(bd->i, bd->j, bd->k, w13_a, dx, KO_damping_coefficient);
 }
 
 real_t Scalar::ev_w22(BSSNData *bd, ScalarData *sd, const real_t dx[])
 {
-  return 0;
+  return (-3.0 * bd->H * sd->w22 + laplacian(bd->i, bd->j, bd->k, h22_a, dx) / pw2(bd->a) 
+  + 16 * PI * sd->d2phi * sd->d2phi 
+  ) 
+    - KO_dissipation_Q(bd->i, bd->j, bd->k, w22_a, dx, KO_damping_coefficient);
 }
 
 real_t Scalar::ev_w23(BSSNData *bd, ScalarData *sd, const real_t dx[])
 {
-  return 0;
+  return (-3.0 * bd->H * sd->w23 + laplacian(bd->i, bd->j, bd->k, h23_a, dx) / pw2(bd->a) 
+  + 16 * PI * sd->d2phi * sd->d3phi 
+  ) 
+    - KO_dissipation_Q(bd->i, bd->j, bd->k, w23_a, dx, KO_damping_coefficient);
 }
 
 real_t Scalar::ev_w33(BSSNData *bd, ScalarData *sd, const real_t dx[])
 {
-  return 0;
+  return (-3.0 * bd->H * sd->w33 + laplacian(bd->i, bd->j, bd->k, h33_a, dx) / pw2(bd->a) 
+  + 16 * PI * sd->d3phi * sd->d3phi 
+  ) 
+    - KO_dissipation_Q(bd->i, bd->j, bd->k, w33_a, dx, KO_damping_coefficient);
 }
 
 
@@ -737,7 +773,103 @@ real_t Scalar::ev_Pi_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_i
                         + bd_derivative(bd->i, bd->j, bd->k, 3, Pi_a, dx, l_idx, codim) * bd->z 
                         + sd->Pi           );
 }
-  
+
+real_t ev_h11_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
+{
+    return -1.0/bd->norm*(bd_derivative(bd->i, bd->j, bd->k, 1, h11_a, dx, l_idx, codim) * bd->x
+                        + bd_derivative(bd->i, bd->j, bd->k, 2, h11_a, dx, l_idx, codim) * bd->y
+                        + bd_derivative(bd->i, bd->j, bd->k, 3, h11_a, dx, l_idx, codim) * bd->z 
+                        + sd->h11           );
+}
+
+real_t ev_h12_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
+{
+    return -1.0/bd->norm*(bd_derivative(bd->i, bd->j, bd->k, 1, h12_a, dx, l_idx, codim) * bd->x
+                        + bd_derivative(bd->i, bd->j, bd->k, 2, h12_a, dx, l_idx, codim) * bd->y
+                        + bd_derivative(bd->i, bd->j, bd->k, 3, h12_a, dx, l_idx, codim) * bd->z 
+                        + sd->h12          );
+}
+
+real_t ev_h13_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
+{
+    return -1.0/bd->norm*(bd_derivative(bd->i, bd->j, bd->k, 1, h13_a, dx, l_idx, codim) * bd->x
+                        + bd_derivative(bd->i, bd->j, bd->k, 2, h13_a, dx, l_idx, codim) * bd->y
+                        + bd_derivative(bd->i, bd->j, bd->k, 3, h13_a, dx, l_idx, codim) * bd->z 
+                        + sd->h13           );
+}
+
+real_t ev_h22_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
+{
+    return -1.0/bd->norm*(bd_derivative(bd->i, bd->j, bd->k, 1, h22_a, dx, l_idx, codim) * bd->x
+                        + bd_derivative(bd->i, bd->j, bd->k, 2, h22_a, dx, l_idx, codim) * bd->y
+                        + bd_derivative(bd->i, bd->j, bd->k, 3, h22_a, dx, l_idx, codim) * bd->z 
+                        + sd->h22           );
+}
+
+real_t ev_h23_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
+{
+    return -1.0/bd->norm*(bd_derivative(bd->i, bd->j, bd->k, 1, h23_a, dx, l_idx, codim) * bd->x
+                        + bd_derivative(bd->i, bd->j, bd->k, 2, h23_a, dx, l_idx, codim) * bd->y
+                        + bd_derivative(bd->i, bd->j, bd->k, 3, h23_a, dx, l_idx, codim) * bd->z 
+                        + sd->h23           );
+}
+
+real_t ev_h33_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
+{
+    return -1.0/bd->norm*(bd_derivative(bd->i, bd->j, bd->k, 1, h33_a, dx, l_idx, codim) * bd->x
+                        + bd_derivative(bd->i, bd->j, bd->k, 2, h33_a, dx, l_idx, codim) * bd->y
+                        + bd_derivative(bd->i, bd->j, bd->k, 3, h33_a, dx, l_idx, codim) * bd->z 
+                        + sd->h33           );
+}
+
+real_t ev_w11_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
+{
+    return -1.0/bd->norm*(bd_derivative(bd->i, bd->j, bd->k, 1, w11_a, dx, l_idx, codim) * bd->x
+                        + bd_derivative(bd->i, bd->j, bd->k, 2, w11_a, dx, l_idx, codim) * bd->y
+                        + bd_derivative(bd->i, bd->j, bd->k, 3, w11_a, dx, l_idx, codim) * bd->z 
+                        + sd->w11           );
+}
+
+real_t ev_w12_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
+{
+    return -1.0/bd->norm*(bd_derivative(bd->i, bd->j, bd->k, 1, w12_a, dx, l_idx, codim) * bd->x
+                        + bd_derivative(bd->i, bd->j, bd->k, 2, w12_a, dx, l_idx, codim) * bd->y
+                        + bd_derivative(bd->i, bd->j, bd->k, 3, w12_a, dx, l_idx, codim) * bd->z 
+                        + sd->w12           );
+}
+
+real_t ev_w13_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
+{
+    return -1.0/bd->norm*(bd_derivative(bd->i, bd->j, bd->k, 1, w13_a, dx, l_idx, codim) * bd->x
+                        + bd_derivative(bd->i, bd->j, bd->k, 2, w13_a, dx, l_idx, codim) * bd->y
+                        + bd_derivative(bd->i, bd->j, bd->k, 3, w13_a, dx, l_idx, codim) * bd->z 
+                        + sd->w13           );
+}
+
+real_t ev_w22_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
+{
+    return -1.0/bd->norm*(bd_derivative(bd->i, bd->j, bd->k, 1, w22_a, dx, l_idx, codim) * bd->x
+                        + bd_derivative(bd->i, bd->j, bd->k, 2, w22_a, dx, l_idx, codim) * bd->y
+                        + bd_derivative(bd->i, bd->j, bd->k, 3, w22_a, dx, l_idx, codim) * bd->z 
+                        + sd->w22           );
+}
+
+real_t ev_w23_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
+{
+    return -1.0/bd->norm*(bd_derivative(bd->i, bd->j, bd->k, 1, w23_a, dx, l_idx, codim) * bd->x
+                        + bd_derivative(bd->i, bd->j, bd->k, 2, w23_a, dx, l_idx, codim) * bd->y
+                        + bd_derivative(bd->i, bd->j, bd->k, 3, w23_a, dx, l_idx, codim) * bd->z 
+                        + sd->w23           );
+}
+
+real_t ev_w33_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
+{
+    return -1.0/bd->norm*(bd_derivative(bd->i, bd->j, bd->k, 1, w33_a, dx, l_idx, codim) * bd->x
+                        + bd_derivative(bd->i, bd->j, bd->k, 2, w33_a, dx, l_idx, codim) * bd->y
+                        + bd_derivative(bd->i, bd->j, bd->k, 3, w33_a, dx, l_idx, codim) * bd->z 
+                        + sd->w33           );
+}
+
 void Scalar::addBSSNSrc(
   BSSN * bssn, const std::shared_ptr<hier::PatchHierarchy>& hierarchy)
 {

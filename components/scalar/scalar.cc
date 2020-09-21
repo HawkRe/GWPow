@@ -613,6 +613,7 @@ void Scalar::getScalarData(
   sd->w22 = w22_a(i,j,k);
   sd->w23 = w23_a(i,j,k);
   sd->w33 = w33_a(i,j,k); 
+  // Make Use of These Derived Derivative!
   sd->d1phi = derivative(i, j, k, 1, phi_a, dx);
   sd->d2phi = derivative(i, j, k, 2, phi_a, dx);
   sd->d3phi = derivative(i, j, k, 3, phi_a, dx);
@@ -691,7 +692,7 @@ real_t Scalar::ev_h33(BSSNData *bd, ScalarData *sd, const real_t dx[])
 
 real_t Scalar::ev_w11(BSSNData *bd, ScalarData *sd, const real_t dx[])
 {
-  return 0;
+  return 
 }
 
 real_t Scalar::ev_w12(BSSNData *bd, ScalarData *sd, const real_t dx[])

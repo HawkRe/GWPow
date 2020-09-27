@@ -70,6 +70,10 @@ bool scalar_ic_set_scalar_gaussian_random(
   idx_t ln, BSSN * bssn, Scalar * scalar,
   std::shared_ptr<tbox::Database> cosmo_scalar_db);
 
+bool scalar_ic_set_perturbation(
+  const std::shared_ptr<hier::PatchHierarchy>& hierarchy,
+  idx_t ln, BSSN * bssn, Scalar * scalar,
+  std::shared_ptr<tbox::Database> cosmo_scalar_db);
  
  inline bool exist(const std::string& name)
  {

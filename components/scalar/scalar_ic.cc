@@ -753,7 +753,7 @@ bool scalar_ic_set_scalar_gaussian_random(
         {
           phi_a(i, j, k) = phi[INDEX(i,j,k)];
           a_a(i, j, k) = 1.0;
-          // Prepare BD Values Including the GhostBox
+          // Prepare BD Values Including the GhostBox, NX = NY = NZ
           h11_a(i, j, k) = h11_field[INDEX(i,j,k)]/pw3(NX)
           w11_a(i, j, k) = 0;
           h12_a(i, j, k) = h12_field[INDEX(i,j,k)]/pw3(NX)

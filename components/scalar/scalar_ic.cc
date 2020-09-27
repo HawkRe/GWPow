@@ -195,32 +195,9 @@ bool scalar_ic_set_oscillon(
       exp( - pow(fabs( (r - r0) / sigma) , q)) ;
     }
   }
-    
+  // Solve Boundary Data Initilization with Conditions!
   bd_handler->fillBoundary(phi._array, phi.nx, phi.ny, phi.nz);
   /* Raw Data Generation For Sclar Field Stored phi._array Member Variable Used For Perturbation Initial Data */
-
-  int lattice_size = (NX + 2*STENCIL_ORDER) * (NY + 2*STENCIL_ORDER) * (NZ + 2*STENCIL_ORDER);
-  real_t *h11_field;
-  real_t *h11_momentum;
-  real_t *phi_momentum;
-  h11_field = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  h11_momentum = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  phi_momentum = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  fftw_plan p,q;
-  p = fftw_plan_r2r_3d(NZ + 2*STENCIL_ORDER, NY + 2*STENCIL_ORDER, NX + 2*STENCIL_ORDER, phi._array, phi_momentum, FFTW_FORWARD, FFTW_ESTIMATE);
-  fftw_execute(p); // phi_momentum represents the transformation in momentum space.
-  for (int k=0; k < (NZ + 2*STENCIL_ORDER); k++){
-    for (int j=0; j < (NY + 2*STENCIL_ORDER); j++){
-      for (int i=0; i < (NX + 2*STENCIL_ORDER); i++){
-        int Index = k * ((NX + 2*STENCIL_ORDER)*(NY + 2*STENCIL_ORDER)) + j * (NX + 2*STENCIL_ORDER) + i;
-        real_t p_sqrt = (pw2(k) + pw2(j) + pw(i));
-        h11_momentum[Index] = pw2(phi_momentum[Index]) * (i*j) / p_sqrt;
-      }  
-    }
-  }
-  q = fftw_plan_r2r_3d(NZ + 2*STENCIL_ORDER, NY + 2*STENCIL_ORDER, NX + 2*STENCIL_ORDER, h11_momentum, h11_field, FFTW_BACKWARD, FFTW_ESTIMATE);
-  fftw_execute(q);
-  /* ------------------------------------------------------------------------------------ */
 
   double tot_r = 0, tot_v = 0.0;
   real_t rho_sigma = 0;
@@ -679,7 +656,30 @@ bool scalar_ic_set_scalar_gaussian_random(
   }
   std::cout<<phi_0<<" "<<max_phi<<"\n";
   bd_handler->fillBoundary(phi._array, phi.nx, phi.ny, phi.nz);
-  
+  /* Raw Data Generation For Sclar Field Stored phi._array Member Variable Used For Perturbation Initial Data */
+  int lattice_size = (NX + 2*STENCIL_ORDER) * (NY + 2*STENCIL_ORDER) * (NZ + 2*STENCIL_ORDER);
+  real_t *h11_field;
+  real_t *h11_momentum;
+  real_t *phi_momentum;
+  // Must Set BC For Perturbation According to Scalar Field! (Including the Ghost Points)
+  h11_field = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
+  h11_momentum = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
+  phi_momentum = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
+  fftw_plan p,q;
+  p = fftw_plan_r2r_3d(NZ + 2*STENCIL_ORDER, NY + 2*STENCIL_ORDER, NX + 2*STENCIL_ORDER, phi._array, phi_momentum, FFTW_FORWARD, FFTW_ESTIMATE);
+  fftw_execute(p); // phi_momentum represents the transformation in momentum space.
+  for (int k=0; k < (NZ + 2*STENCIL_ORDER); k++){
+    for (int j=0; j < (NY + 2*STENCIL_ORDER); j++){
+      for (int i=0; i < (NX + 2*STENCIL_ORDER); i++){
+        int Index = k * ((NX + 2*STENCIL_ORDER)*(NY + 2*STENCIL_ORDER)) + j * (NX + 2*STENCIL_ORDER) + i;
+        real_t p_sqrt = (pw2(k) + pw2(j) + pw(i));
+        h11_momentum[Index] = pw2(phi_momentum[Index]) * (i*j) / p_sqrt;
+      }  
+    }
+  }
+  q = fftw_plan_r2r_3d(NZ + 2*STENCIL_ORDER, NY + 2*STENCIL_ORDER, NX + 2*STENCIL_ORDER, h11_momentum, h11_field, FFTW_BACKWARD, FFTW_ESTIMATE);
+  fftw_execute(q);
+  /* ------------------------------------------------------------------------------------ */
   double tot_r = 0, tot_v = 0.0;
   real_t rho_sigma = 0.0;
   

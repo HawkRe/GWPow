@@ -249,39 +249,39 @@ bool scalar_ic_set_oscillon(
 
     
       for(int k = lower[2]; k <= upper[2]; k++)
-	{
-	  for(int j = lower[1]; j <= upper[1]; j++)
-	    {
-	      for(int i = lower[0]; i <= upper[0]; i++)
-		{
+	      {
+	        for(int j = lower[1]; j <= upper[1]; j++)
+	          {
+	            for(int i = lower[0]; i <= upper[0]; i++)
+		            {
 
                   phi_a(i, j, k) = phi[INDEX(i,j,k)];
                   a_a(i, j, k) = 1.0;
-		}
-	    }
-	}
+		            }
+	          }
+	      }
 
       for(int k = inner_lower[2]; k <= inner_upper[2]; k++)
-	{
-	  for(int j = inner_lower[1]; j <= inner_upper[1]; j++)
-	    {
-	      for(int i = inner_lower[0]; i <= inner_upper[0]; i++)
-		{         
-		  BSSNData bd = {0};
-		  ScalarData sd = {0};
+	      {
+	        for(int j = inner_lower[1]; j <= inner_upper[1]; j++)
+	          {
+	            for(int i = inner_lower[0]; i <= inner_upper[0]; i++)
+		            {         
+		              BSSNData bd = {0};
+		              ScalarData sd = {0};
 
-		  sd.phi = phi[INDEX(i,j,k)];
-		  tot_r += 
-		    (0.5 *  (
-							  (pw2((1.0/12.0*phi[INDEX(i-2,j,k)] - 2.0/3.0*phi[INDEX(i-1,j,k)] + 2.0/3.0*phi[INDEX(i+1,j,k)]- 1.0/12.0*phi[INDEX(i+2,j,k)])/dx[0])
-							   + pw2((1.0/12.0*phi[INDEX(i,j-2,k)] - 2.0/3.0*phi[INDEX(i,j-1,k)] + 2.0/3.0*phi[INDEX(i,j+1,k)]- 1.0/12.0*phi[INDEX(i,j+2,k)])/dx[1])
-							   +pw2((1.0/12.0*phi[INDEX(i,j,k-2)] - 2.0/3.0*phi[INDEX(i,j,k-1)] + 2.0/3.0*phi[INDEX(i,j,k+1)]- 1.0/12.0*phi[INDEX(i,j,k+2)])/dx[2]))
-							  )
-		     + scalar->potentialHandler->ev_potential(&bd, &sd));
+		              sd.phi = phi[INDEX(i,j,k)];
+		              tot_r += 
+		                       (0.5 *  (
+							              (pw2((1.0/12.0*phi[INDEX(i-2,j,k)] - 2.0/3.0*phi[INDEX(i-1,j,k)] + 2.0/3.0*phi[INDEX(i+1,j,k)]- 1.0/12.0*phi[INDEX(i+2,j,k)])/dx[0])
+							                + pw2((1.0/12.0*phi[INDEX(i,j-2,k)] - 2.0/3.0*phi[INDEX(i,j-1,k)] + 2.0/3.0*phi[INDEX(i,j+1,k)]- 1.0/12.0*phi[INDEX(i,j+2,k)])/dx[1])
+							                +pw2((1.0/12.0*phi[INDEX(i,j,k-2)] - 2.0/3.0*phi[INDEX(i,j,k-1)] + 2.0/3.0*phi[INDEX(i,j,k+1)]- 1.0/12.0*phi[INDEX(i,j,k+2)])/dx[2]))
+							                      )
+		                        + scalar->potentialHandler->ev_potential(&bd, &sd));
 
-		}
-	    }
-	}   
+		            }
+	          }
+	      }   
     }
 
   mpi.AllReduce(&tot_r,1,MPI_SUM);
@@ -314,26 +314,26 @@ bool scalar_ic_set_oscillon(
  
      
       for(int k = inner_lower[2]; k <= inner_upper[2]; k++)
-	{
-	  for(int j = inner_lower[1]; j <= inner_upper[1]; j++)
-	    {
-	      for(int i = inner_lower[0]; i <= inner_upper[0]; i++)
-		{
-		  BSSNData bd = {0};
-		  ScalarData sd = {0};
+	      {
+	        for(int j = inner_lower[1]; j <= inner_upper[1]; j++)
+	          {
+	            for(int i = inner_lower[0]; i <= inner_upper[0]; i++)
+		            {
+		              BSSNData bd = {0};
+		              ScalarData sd = {0};
                   H_a(i, j, k) = sqrt(8.0 * PI * avg_r/3.0);
-		  sd.phi = phi[INDEX(i,j,k)];
+		              sd.phi = phi[INDEX(i,j,k)];
  
-		  rho_sigma += 
-		    pw2((0.5  * (
-							      (pw2((1.0/12.0*phi[INDEX(i-2,j,k)] - 2.0/3.0*phi[INDEX(i-1,j,k)] + 2.0/3.0*phi[INDEX(i+1,j,k)]- 1.0/12.0*phi[INDEX(i+2,j,k)])/dx[0])
-							       + pw2((1.0/12.0*phi[INDEX(i,j-2,k)] - 2.0/3.0*phi[INDEX(i,j-1,k)] + 2.0/3.0*phi[INDEX(i,j+1,k)]- 1.0/12.0*phi[INDEX(i,j+2,k)])/dx[1])
-							       +pw2((1.0/12.0*phi[INDEX(i,j,k-2)] - 2.0/3.0*phi[INDEX(i,j,k-1)] + 2.0/3.0*phi[INDEX(i,j,k+1)]- 1.0/12.0*phi[INDEX(i,j,k+2)])/dx[2]))
-							      )
-			 + scalar->potentialHandler->ev_potential(&bd, &sd)) - avg_r);
-		}
-	    }
-	}
+		              rho_sigma += 
+		                pw2((0.5  * (
+							          (pw2((1.0/12.0*phi[INDEX(i-2,j,k)] - 2.0/3.0*phi[INDEX(i-1,j,k)] + 2.0/3.0*phi[INDEX(i+1,j,k)]- 1.0/12.0*phi[INDEX(i+2,j,k)])/dx[0])
+							            + pw2((1.0/12.0*phi[INDEX(i,j-2,k)] - 2.0/3.0*phi[INDEX(i,j-1,k)] + 2.0/3.0*phi[INDEX(i,j+1,k)]- 1.0/12.0*phi[INDEX(i,j+2,k)])/dx[1])
+							            +pw2((1.0/12.0*phi[INDEX(i,j,k-2)] - 2.0/3.0*phi[INDEX(i,j,k-1)] + 2.0/3.0*phi[INDEX(i,j,k+1)]- 1.0/12.0*phi[INDEX(i,j,k+2)])/dx[2]))
+							        )
+			                + scalar->potentialHandler->ev_potential(&bd, &sd)) - avg_r);
+		            }
+	          }
+	      }
     }
  
   mpi.AllReduce(&rho_sigma,1,MPI_SUM);

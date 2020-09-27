@@ -109,22 +109,26 @@ bool scalar_ic_set_oscillon(
   real_t delta_phi_y = cosmo_scalar_db->getDoubleWithDefault("delta_phi_y", 0.1);
   real_t delta_phi_z = cosmo_scalar_db->getDoubleWithDefault("delta_phi_z", 0.1);
 
-
   /******ending collecting parameters from input database****/
-
+  
   //  double * phi = new double[(NX+2*STENCIL_ORDER) * (NY+2*STENCIL_ORDER) * (NZ+2*STENCIL_ORDER)];
   CosmoArray<idx_t, real_t>  phi;
-  phi.init(NX, NY, NZ);
+ /* Add Variables For Perturbation Field */
+  CosmoArray<idx_t, real_t>  h11;
+  CosmoArray<idx_t, real_t>  w11;
+  /* ----------------------------------- */
+  phi.init(NX, NY, NZ); // All Zero 
+  h11.init(NX, NY, NZ);
+  w11.init(NX, NY, NZ); // Default Initialization Being Zero including GhostBox!
   //  std::vector<double> phi(NX*NY*NZ, phi_0);
   
   LOOP3()
-    phi[INDEX(i, j, k)] = phi_0;
+    phi[INDEX(i, j, k)] = phi_0; // All Lattice (including GhostBox) Global Indexes.
 /*
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<real_t> dist(0, 2.0*PI);
 */
-
   std::string initial_type =
     cosmo_scalar_db->getStringWithDefault("initial_type", "modes");
   if(initial_type == "modes")
@@ -192,9 +196,31 @@ bool scalar_ic_set_oscillon(
     }
   }
     
-
-
   bd_handler->fillBoundary(phi._array, phi.nx, phi.ny, phi.nz);
+  /* Raw Data Generation For Sclar Field Stored phi._array Member Variable Used For Perturbation Initial Data */
+
+  int lattice_size = (NX + 2*STENCIL_ORDER) * (NY + 2*STENCIL_ORDER) * (NZ + 2*STENCIL_ORDER);
+  real_t *h11_field;
+  real_t *h11_momentum;
+  real_t *phi_momentum;
+  h11_field = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
+  h11_momentum = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
+  phi_momentum = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
+  fftw_plan p,q;
+  p = fftw_plan_r2r_3d(NZ + 2*STENCIL_ORDER, NY + 2*STENCIL_ORDER, NX + 2*STENCIL_ORDER, phi._array, phi_momentum, FFTW_FORWARD, FFTW_ESTIMATE);
+  fftw_execute(p); // phi_momentum represents the transformation in momentum space.
+  for (int k=0; k < (NZ + 2*STENCIL_ORDER); k++){
+    for (int j=0; j < (NY + 2*STENCIL_ORDER); j++){
+      for (int i=0; i < (NX + 2*STENCIL_ORDER); i++){
+        int Index = k * ((NX + 2*STENCIL_ORDER)*(NY + 2*STENCIL_ORDER)) + j * (NX + 2*STENCIL_ORDER) + i;
+        real_t p_sqrt = (pw2(k) + pw2(j) + pw(i));
+        h11_momentum[Index] = pw2(phi_momentum[Index]) * (i*j) / p_sqrt;
+      }  
+    }
+  }
+  q = fftw_plan_r2r_3d(NZ + 2*STENCIL_ORDER, NY + 2*STENCIL_ORDER, NX + 2*STENCIL_ORDER, h11_momentum, h11_field, FFTW_BACKWARD, FFTW_ESTIMATE);
+  fftw_execute(q);
+  /* ------------------------------------------------------------------------------------ */
 
   double tot_r = 0, tot_v = 0.0;
   real_t rho_sigma = 0;
@@ -275,7 +301,7 @@ bool scalar_ic_set_oscillon(
       scalar->initMDA(patch);
      
       arr_t & phi_a = scalar->phi_a; // field
-      arr_t & H_a = bssn->H_a; // field``
+      arr_t & H_a = bssn->H_a; // field
       
       const hier::Box& box = bssn->DIFFchi_a_pdata->getGhostBox();
       const hier::Box& inner_box = patch->getBox();

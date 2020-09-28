@@ -774,7 +774,7 @@ real_t Scalar::ev_Pi_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_i
                         + sd->Pi           );
 }
 
-real_t ev_h11_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
+real_t Scalar::ev_h11_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
 {
     return -1.0/bd->norm*(bd_derivative(bd->i, bd->j, bd->k, 1, h11_a, dx, l_idx, codim) * bd->x
                         + bd_derivative(bd->i, bd->j, bd->k, 2, h11_a, dx, l_idx, codim) * bd->y
@@ -782,7 +782,7 @@ real_t ev_h11_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int
                         + sd->h11           );
 }
 
-real_t ev_h12_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
+real_t Scalar::ev_h12_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
 {
     return -1.0/bd->norm*(bd_derivative(bd->i, bd->j, bd->k, 1, h12_a, dx, l_idx, codim) * bd->x
                         + bd_derivative(bd->i, bd->j, bd->k, 2, h12_a, dx, l_idx, codim) * bd->y
@@ -790,7 +790,7 @@ real_t ev_h12_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int
                         + sd->h12          );
 }
 
-real_t ev_h13_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
+real_t Scalar::ev_h13_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
 {
     return -1.0/bd->norm*(bd_derivative(bd->i, bd->j, bd->k, 1, h13_a, dx, l_idx, codim) * bd->x
                         + bd_derivative(bd->i, bd->j, bd->k, 2, h13_a, dx, l_idx, codim) * bd->y
@@ -798,7 +798,7 @@ real_t ev_h13_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int
                         + sd->h13           );
 }
 
-real_t ev_h22_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
+real_t Scalar::ev_h22_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
 {
     return -1.0/bd->norm*(bd_derivative(bd->i, bd->j, bd->k, 1, h22_a, dx, l_idx, codim) * bd->x
                         + bd_derivative(bd->i, bd->j, bd->k, 2, h22_a, dx, l_idx, codim) * bd->y
@@ -806,7 +806,7 @@ real_t ev_h22_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int
                         + sd->h22           );
 }
 
-real_t ev_h23_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
+real_t Scalar::ev_h23_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
 {
     return -1.0/bd->norm*(bd_derivative(bd->i, bd->j, bd->k, 1, h23_a, dx, l_idx, codim) * bd->x
                         + bd_derivative(bd->i, bd->j, bd->k, 2, h23_a, dx, l_idx, codim) * bd->y
@@ -814,7 +814,7 @@ real_t ev_h23_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int
                         + sd->h23           );
 }
 
-real_t ev_h33_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
+real_t Scalar::ev_h33_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
 {
     return -1.0/bd->norm*(bd_derivative(bd->i, bd->j, bd->k, 1, h33_a, dx, l_idx, codim) * bd->x
                         + bd_derivative(bd->i, bd->j, bd->k, 2, h33_a, dx, l_idx, codim) * bd->y
@@ -822,7 +822,7 @@ real_t ev_h33_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int
                         + sd->h33           );
 }
 
-real_t ev_w11_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
+real_t Scalar::ev_w11_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
 {
     return -1.0/bd->norm*(bd_derivative(bd->i, bd->j, bd->k, 1, w11_a, dx, l_idx, codim) * bd->x
                         + bd_derivative(bd->i, bd->j, bd->k, 2, w11_a, dx, l_idx, codim) * bd->y
@@ -830,7 +830,7 @@ real_t ev_w11_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int
                         + sd->w11           );
 }
 
-real_t ev_w12_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
+real_t Scalar::ev_w12_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
 {
     return -1.0/bd->norm*(bd_derivative(bd->i, bd->j, bd->k, 1, w12_a, dx, l_idx, codim) * bd->x
                         + bd_derivative(bd->i, bd->j, bd->k, 2, w12_a, dx, l_idx, codim) * bd->y
@@ -838,7 +838,7 @@ real_t ev_w12_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int
                         + sd->w12           );
 }
 
-real_t ev_w13_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
+real_t Scalar::ev_w13_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
 {
     return -1.0/bd->norm*(bd_derivative(bd->i, bd->j, bd->k, 1, w13_a, dx, l_idx, codim) * bd->x
                         + bd_derivative(bd->i, bd->j, bd->k, 2, w13_a, dx, l_idx, codim) * bd->y
@@ -846,7 +846,7 @@ real_t ev_w13_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int
                         + sd->w13           );
 }
 
-real_t ev_w22_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
+real_t Scalar::ev_w22_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
 {
     return -1.0/bd->norm*(bd_derivative(bd->i, bd->j, bd->k, 1, w22_a, dx, l_idx, codim) * bd->x
                         + bd_derivative(bd->i, bd->j, bd->k, 2, w22_a, dx, l_idx, codim) * bd->y
@@ -854,7 +854,7 @@ real_t ev_w22_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int
                         + sd->w22           );
 }
 
-real_t ev_w23_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
+real_t Scalar::ev_w23_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
 {
     return -1.0/bd->norm*(bd_derivative(bd->i, bd->j, bd->k, 1, w23_a, dx, l_idx, codim) * bd->x
                         + bd_derivative(bd->i, bd->j, bd->k, 2, w23_a, dx, l_idx, codim) * bd->y
@@ -862,7 +862,7 @@ real_t ev_w23_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int
                         + sd->w23           );
 }
 
-real_t ev_w33_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
+real_t Scalar::ev_w33_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim)
 {
     return -1.0/bd->norm*(bd_derivative(bd->i, bd->j, bd->k, 1, w33_a, dx, l_idx, codim) * bd->x
                         + bd_derivative(bd->i, bd->j, bd->k, 2, w33_a, dx, l_idx, codim) * bd->y

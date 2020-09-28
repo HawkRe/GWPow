@@ -86,7 +86,7 @@ void add_extra_operators(
 
 }
 
-int main(int argc, char* argv[])
+int main(int argc, char* argv[]) // main program begins here.
 {
   std::string input_filename;
 
@@ -207,10 +207,10 @@ int main(int argc, char* argv[])
   std::string vis_filename =
     main_db->getStringWithDefault("vis_filename", base_name);
 
-  CosmoSim * cosmoSim;
+  CosmoSim * cosmoSim;  // necessary part
 
   
-  if(simulation_type == "scalar")
+  if(simulation_type == "scalar") // Specify the simulation type, is a subclass of CosmoSim class
   {
     cosmoSim = new ScalarSim(
       patch_hierarchy, dim, input_db, &tbox::plog, simulation_type, vis_filename);
@@ -287,6 +287,7 @@ int main(int argc, char* argv[])
   gridding_algorithm.reset();
   grid_geometry.reset();
   box_generator.reset();
+  // Destroy objects used in simulation
   tbox::SAMRAIManager::shutdown();
   tbox::SAMRAIManager::finalize();
   tbox::SAMRAI_MPI::finalize();

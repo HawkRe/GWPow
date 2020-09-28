@@ -58,8 +58,6 @@ public:
   BSSN_APPLY_TO_SOURCES_ARGS(RK4_MDA_ACCESS_CREATE,a)
   BSSN_APPLY_TO_GEN1_EXTRAS_ARGS(RK4_MDA_ACCESS_CREATE,a)
   
-  void getPertData(idx_t i, idx_t j, idx_t k, BSSNData *bd, ScalarData *sd, const real_t dx[]);
-  void getPertDataBd(idx_t i, idx_t j, idx_t k, BSSNData *bd, ScalarData *sd, const real_t dx[]);
   void init(const std::shared_ptr<hier::PatchHierarchy>& hierarchy);
 
   void stepInit(

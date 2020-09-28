@@ -1328,62 +1328,7 @@ bool scalar_ic_set_perturbation(
   
   /* Set For Perturbation Field */
   int lattice_size = (NX + 2*STENCIL_ORDER) * (NY + 2*STENCIL_ORDER) * (NZ + 2*STENCIL_ORDER);
-  real_t *phi_momentum;
-  real_t *h11_field;
-  real_t *h11_momentum;
-  real_t *h12_field;
-  real_t *h12_momentum;
-  real_t *h13_field;
-  real_t *h13_momentum;
-  real_t *h22_field;
-  real_t *h22_momentum;
-  real_t *h23_field;
-  real_t *h23_momentum;
-  real_t *h33_field;
-  real_t *h33_momentum;
-  // Must Set BC For Perturbation According to Scalar Field! (Including the Ghost Points)
-  phi_momentum = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  h11_field = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  h11_momentum = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  h12_field = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  h12_momentum = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  h13_field = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  h13_momentum = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  h22_field = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  h22_momentum = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  h23_field = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  h23_momentum = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  h33_field = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  h33_momentum = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  fftw_plan p,q11,q12,q13,q22,q23,q33;
-  p = fftw_plan_r2r_3d(NZ + 2*STENCIL_ORDER, NY + 2*STENCIL_ORDER, NX + 2*STENCIL_ORDER, phi._array, phi_momentum, FFTW_FORWARD, FFTW_ESTIMATE);
-  fftw_execute(p); // phi_momentum represents the transformation in momentum space.
-  for (int k=0; k < (NZ + 2*STENCIL_ORDER); k++){
-    for (int j=0; j < (NY + 2*STENCIL_ORDER); j++){
-      for (int i=0; i < (NX + 2*STENCIL_ORDER); i++){
-        int Index = k * ((NX + 2*STENCIL_ORDER)*(NY + 2*STENCIL_ORDER)) + j * (NX + 2*STENCIL_ORDER) + i;
-        real_t p_sqr = (pw2(k) + pw2(j) + pw2(i));
-        h11_momentum[Index] = pw2(phi_momentum[Index]) * (i*i) / p_sqr;
-        h12_momentum[Index] = pw2(phi_momentum[Index]) * (i*j) / p_sqr;
-        h13_momentum[Index] = pw2(phi_momentum[Index]) * (i*k) / p_sqr;
-        h22_momentum[Index] = pw2(phi_momentum[Index]) * (j*j) / p_sqr;
-        h23_momentum[Index] = pw2(phi_momentum[Index]) * (j*k) / p_sqr;
-        h33_momentum[Index] = pw2(phi_momentum[Index]) * (k*k) / p_sqr;
-      }  
-    }
-  }
-  q11 = fftw_plan_r2r_3d(NZ + 2*STENCIL_ORDER, NY + 2*STENCIL_ORDER, NX + 2*STENCIL_ORDER, h11_momentum, h11_field, FFTW_BACKWARD, FFTW_ESTIMATE);
-  fftw_execute(q11);
-  q12 = fftw_plan_r2r_3d(NZ + 2*STENCIL_ORDER, NY + 2*STENCIL_ORDER, NX + 2*STENCIL_ORDER, h12_momentum, h12_field, FFTW_BACKWARD, FFTW_ESTIMATE);
-  fftw_execute(q12);
-  q13 = fftw_plan_r2r_3d(NZ + 2*STENCIL_ORDER, NY + 2*STENCIL_ORDER, NX + 2*STENCIL_ORDER, h13_momentum, h13_field, FFTW_BACKWARD, FFTW_ESTIMATE);
-  fftw_execute(q13);
-  q22 = fftw_plan_r2r_3d(NZ + 2*STENCIL_ORDER, NY + 2*STENCIL_ORDER, NX + 2*STENCIL_ORDER, h22_momentum, h22_field, FFTW_BACKWARD, FFTW_ESTIMATE);
-  fftw_execute(q22);
-  q23 = fftw_plan_r2r_3d(NZ + 2*STENCIL_ORDER, NY + 2*STENCIL_ORDER, NX + 2*STENCIL_ORDER, h23_momentum, h23_field, FFTW_BACKWARD, FFTW_ESTIMATE);
-  fftw_execute(q23);
-  q33 = fftw_plan_r2r_3d(NZ + 2*STENCIL_ORDER, NY + 2*STENCIL_ORDER, NX + 2*STENCIL_ORDER, h33_momentum, h33_field, FFTW_BACKWARD, FFTW_ESTIMATE);
-  fftw_execute(q33);
+
   /* ------------------------------------------------------------------------------------ */
 
   double tot_r = 0, tot_v = 0.0;

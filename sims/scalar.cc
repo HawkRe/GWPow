@@ -235,6 +235,11 @@ bool ScalarSim::initLevel(
     return scalar_ic_set_scalar_gaussian_random(hierarchy, ln, bssnSim, scalarSim, input_db->getDatabase("Scalar"));
     
   }
+  else if(ic_type == "scalar_perturbation")
+  { if(ln > 0) return false;
+    // which means not initial data file exist
+    return scalar_ic_set_perturbation(hierarchy, ln, bssnSim, scalarSim, input_db->getDatabase("Scalar"));
+  }
   else if(ic_type == "scalar_gaussian_random_defrost")
   {
     if(ln > 0) return false;

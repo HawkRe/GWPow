@@ -1125,8 +1125,6 @@ bool scalar_ic_set_scalar_gaussian_collapse(
   return 0;
 }
 
-  
-}
 
 bool scalar_ic_set_perturbation(
   const std::shared_ptr<hier::PatchHierarchy>& hierarchy,

@@ -1,0 +1,9 @@
+.vscode
+COPYRIGHT
+bin/*
+build/*
+config/*
+include/*
+lib/*
+obj/*
+

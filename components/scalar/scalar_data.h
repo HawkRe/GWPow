@@ -7,7 +7,8 @@ typedef struct {
 
   // field values
   real_t phi, Pi, psi1, psi2, psi3;
-
+  real_t h11, h12, h13, h22, h23, h33;
+  real_t w11, w12, w13, w22, w23, w33;
   // derivatives of fields
   real_t d1phi, d2phi, d3phi;
   real_t d1Pi, d2Pi, d3Pi;

@@ -474,7 +474,7 @@ bool scalar_ic_set_scalar_gaussian_random(
   TBOX_ASSERT(grid_geometry_);
   geom::CartesianGridGeometry& grid_geometry = *grid_geometry_;
 
-
+  // computational domain.
   const double * domain_lower = &grid_geometry.getXLower()[0];
   const double * domain_upper = &grid_geometry.getXUpper()[0];
 
@@ -630,7 +630,6 @@ bool scalar_ic_set_scalar_gaussian_random(
   (f_field)[FFT_NP_INDEX(0,0,0)][0] = 0;
   (f_field)[FFT_NP_INDEX(0,0,0)][1] = 0;
 
-  
   fftw_execute_dft_c2r(p_c2r, f_field, r_field);
 
   // for(int i = 0; i < NX;i ++)
@@ -639,7 +638,7 @@ bool scalar_ic_set_scalar_gaussian_random(
   //   std::cout<<r_field[fft_index]<<" ";
   // }
   // std::cout<<"\n";
-
+  /* --------------------- No Relationship With SAMRAI ------------------------ */
   CosmoArray<idx_t, real_t>  phi;
   phi.init(NX, NY, NZ);
   double max_phi = -1;
@@ -675,8 +674,8 @@ bool scalar_ic_set_scalar_gaussian_random(
 
     arr_t & phi_a = scalar->phi_a; // field
     arr_t & a_a = bssn->a_a; // field
-    arr_t & h11_a = scalar->h11_a;
-
+    arr_t & h11_a = scalar->h11_a; // Same type!
+    // Manage Inner and Ghost Boundary Box 
     const hier::Box& box = bssn->DIFFchi_a_pdata->getGhostBox();
     const hier::Box& inner_box = patch->getBox();
 
@@ -1307,13 +1306,14 @@ bool scalar_ic_set_perturbation(
   //   std::cout<<r_field[fft_index]<<" ";
   // }
   // std::cout<<"\n";
-
+  // phi includes the ghost_box boundary
   CosmoArray<idx_t, real_t>  phi;
   phi.init(NX, NY, NZ);
   double max_phi = -1;
   LOOP3()
   {
     idx_t fft_index = NP_INDEX(i,j,k);
+    // fill the interior cell
     phi[INDEX(i, j, k)] = phi_0 + 16.0*r_field[fft_index]/pow(L[0],1.5);
     // if(i == 0 && j == 0)
     //   std::cout<<r_field[fft_index]<<" ";
@@ -1326,64 +1326,82 @@ bool scalar_ic_set_perturbation(
   bd_handler->fillBoundary(phi._array, phi.nx, phi.ny, phi.nz);
   /* Raw Data Generation For Sclar Field Stored phi._array Member Variable Used For Perturbation Initial Data */
   
-  /* Set For Perturbation Field */
-  int lattice_size = (NX + 2*STENCIL_ORDER) * (NY + 2*STENCIL_ORDER) * (NZ + 2*STENCIL_ORDER);
-  real_t *phi_momentum;
-  real_t *h11_field;
-  real_t *h11_momentum;
-  real_t *h12_field;
-  real_t *h12_momentum;
-  real_t *h13_field;
-  real_t *h13_momentum;
-  real_t *h22_field;
-  real_t *h22_momentum;
-  real_t *h23_field;
-  real_t *h23_momentum;
-  real_t *h33_field;
-  real_t *h33_momentum;
-  // Must Set BC For Perturbation According to Scalar Field! (Including the Ghost Points)
-  phi_momentum = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  h11_field = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  h11_momentum = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  h12_field = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  h12_momentum = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  h13_field = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  h13_momentum = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  h22_field = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  h22_momentum = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  h23_field = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  h23_momentum = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  h33_field = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  h33_momentum = (real_t*) fftw_malloc(lattice_size * (sizeof(real_t)));
-  fftw_plan p,q11,q12,q13,q22,q23,q33;
-  p = fftw_plan_r2r_3d(NZ + 2*STENCIL_ORDER, NY + 2*STENCIL_ORDER, NX + 2*STENCIL_ORDER, phi._array, phi_momentum, FFTW_FORWARD, FFTW_ESTIMATE);
-  fftw_execute(p); // phi_momentum represents the transformation in momentum space.
-  for (int k=0; k < (NZ + 2*STENCIL_ORDER); k++){
-    for (int j=0; j < (NY + 2*STENCIL_ORDER); j++){
-      for (int i=0; i < (NX + 2*STENCIL_ORDER); i++){
-        int Index = k * ((NX + 2*STENCIL_ORDER)*(NY + 2*STENCIL_ORDER)) + j * (NX + 2*STENCIL_ORDER) + i;
-        real_t p_sqr = (pw2(k) + pw2(j) + pw2(i));
-        h11_momentum[Index] = pw2(phi_momentum[Index]) * (i*i) / p_sqr;
-        h12_momentum[Index] = pw2(phi_momentum[Index]) * (i*j) / p_sqr;
-        h13_momentum[Index] = pw2(phi_momentum[Index]) * (i*k) / p_sqr;
-        h22_momentum[Index] = pw2(phi_momentum[Index]) * (j*j) / p_sqr;
-        h23_momentum[Index] = pw2(phi_momentum[Index]) * (j*k) / p_sqr;
-        h33_momentum[Index] = pw2(phi_momentum[Index]) * (k*k) / p_sqr;
-      }  
-    }
+  /* --------------------------- Set For Perturbation Field -------------------------------- */
+  CosmoArray<idx_t, real_t>  d1d1phi, d1d2phi, d1d3phi, d2d2phi, d2d3phi d3d3phi;
+  // Using Macros to Solve the Repeated Calling!
+  d1d1phi.init(NX,NY,NZ);
+  d1d2phi.init(NX,NY,NZ);
+  d1d3phi.init(NX,NY,NZ);
+  d2d2phi.init(NX,NY,NZ);
+  d2d3phi.init(NX,NY,NZ);
+  d3d3phi.init(NX,NY,NZ);
+  LOOP3()
+  {
+    d1d1phi[INDEX(i,j,k)] = derivative(i, j, k, 1, phi._array, dx) * derivative(i, j, k, 1, phi._array, dx);
+    d1d2phi[INDEX(i,j,k)] = derivative(i, j, k, 1, phi._array, dx) * derivative(i, j, k, 2, phi._array, dx);
+    d1d3phi[INDEX(i,j,k)] = derivative(i, j, k, 1, phi._array, dx) * derivative(i, j, k, 3, phi._array, dx);
+    d2d2phi[INDEX(i,j,k)] = derivative(i, j, k, 2, phi._array, dx) * derivative(i, j, k, 2, phi._array, dx);
+    d2d3phi[INDEX(i,j,k)] = derivative(i, j, k, 2, phi._array, dx) * derivative(i, j, k, 3, phi._array, dx);
+    d3d3phi[INDEX(i,j,k)] = derivative(i, j, k, 3, phi._array, dx) * derivative(i, j, k, 3, phi._array, dx);
   }
-  q11 = fftw_plan_r2r_3d(NZ + 2*STENCIL_ORDER, NY + 2*STENCIL_ORDER, NX + 2*STENCIL_ORDER, h11_momentum, h11_field, FFTW_BACKWARD, FFTW_ESTIMATE);
-  fftw_execute(q11);
-  q12 = fftw_plan_r2r_3d(NZ + 2*STENCIL_ORDER, NY + 2*STENCIL_ORDER, NX + 2*STENCIL_ORDER, h12_momentum, h12_field, FFTW_BACKWARD, FFTW_ESTIMATE);
-  fftw_execute(q12);
-  q13 = fftw_plan_r2r_3d(NZ + 2*STENCIL_ORDER, NY + 2*STENCIL_ORDER, NX + 2*STENCIL_ORDER, h13_momentum, h13_field, FFTW_BACKWARD, FFTW_ESTIMATE);
-  fftw_execute(q13);
-  q22 = fftw_plan_r2r_3d(NZ + 2*STENCIL_ORDER, NY + 2*STENCIL_ORDER, NX + 2*STENCIL_ORDER, h22_momentum, h22_field, FFTW_BACKWARD, FFTW_ESTIMATE);
-  fftw_execute(q22);
-  q23 = fftw_plan_r2r_3d(NZ + 2*STENCIL_ORDER, NY + 2*STENCIL_ORDER, NX + 2*STENCIL_ORDER, h23_momentum, h23_field, FFTW_BACKWARD, FFTW_ESTIMATE);
-  fftw_execute(q23);
-  q33 = fftw_plan_r2r_3d(NZ + 2*STENCIL_ORDER, NY + 2*STENCIL_ORDER, NX + 2*STENCIL_ORDER, h33_momentum, h33_field, FFTW_BACKWARD, FFTW_ESTIMATE);
-  fftw_execute(q33);
+  bd_handler->fillBoundary(d1d1phi._array, d1d1phi.nx, d1d1phi.ny, d1d1phi.nz);
+  bd_handler->fillBoundary(d1d2phi._array, d1d2phi.nx, d1d2phi.ny, d1d2phi.nz);
+  bd_handler->fillBoundary(d1d3phi._array, d1d3phi.nx, d1d3phi.ny, d1d3phi.nz);
+  bd_handler->fillBoundary(d2d2phi._array, d2d2phi.nx, d2d2phi.ny, d2d2phi.nz);
+  bd_handler->fillBoundary(d2d3phi._array, d2d3phi.nx, d2d3phi.ny, d2d3phi.nz);
+  bd_handler->fillBoundary(d3d3phi._array, d3d3phi.nx, d3d3phi.ny, d3d3phi.nz);
+  // From this repository: https://github.com/ljungdahl/fftw-Poisson-example/blob/master/inplace_r2c_Poisson_example.cpp
+  
+  // Implement h11 initial conditions first
+  NXX = NX + 2*STENCIL_ORDER;
+  NYY = NY + 2*STENCIL_ORDER;
+  NZZ = NZ + 2*STENCIL_ORDER;
+  xlen = NXX * dx[0];
+  fftw_complex *out;
+  out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * NXX * NYY * (NZZ/2 + 1));
+  double *h11_field;
+  h11_field = (real_t*) fftw_malloc(NXX * NYY * NZZ * (sizeof(real_t)));
+  fftw_plan fwrd = fftw_plan_dft_r2c_3d(NXX, NYY, NZZ, d1d1phi._array, out, FFTW_MEASURE);
+  fftw_plan bwrd = fftw_plan_dft_c2r_3d(NXX, NYY, NZZ, out, h11_field, FFTW_MEASURE);
+  fftw_execute(fwrd);
+
+  int II,JJ;
+  double k1,k2,k3;
+  for(int i=0;i<NXX;i++)
+    {
+      if (2*i<NXX)
+        II = i;
+      else
+        II = NXX-i;
+      k1 = 2*Pi*II/xlen;
+                
+      for(int j=0;j<NYY;j++)
+        {
+          if (2*j<NYY)
+            JJ = j;
+          else
+            JJ = NYY - j;
+          k2 = 2*Pi*JJ/xlen;
+                        
+          for (int k=0;k<(NZZ/2 + 1);k++)
+            {
+              k3 = 2*PI*k/xlen;
+              double fac = (pow(k1,2)+pow(k2,2)+pow(k3,2))/(16 * PI);
+              FFT_Idex = (NZZ/2+1)*NYY*i + (NZZ/2+1)*j + k;
+              if (fabs(fac) < 1e-14)
+              {
+                out[FFT_Index][0] = 0.0;
+                out[FFT_Index][1] = 0.0;
+              }
+              else
+              {
+                out[FFT_Index][0] /= fac;
+                out[FFT_Index][1] /= fac;
+              }                    
+            }
+        }
+    }
+  fftw_execute(bwrd);
   /* ------------------------------------------------------------------------------------ */
 
   double tot_r = 0, tot_v = 0.0;
@@ -1403,6 +1421,7 @@ bool scalar_ic_set_perturbation(
     arr_t & phi_a = scalar->phi_a; // field
     arr_t & a_a = bssn->a_a; // field
     arr_t & h11_a = scalar->h11_a;
+    arr_t & w11_a = scalar->w11_a;
 
     const hier::Box& box = bssn->DIFFchi_a_pdata->getGhostBox();
     const hier::Box& inner_box = patch->getBox();
@@ -1422,18 +1441,20 @@ bool scalar_ic_set_perturbation(
           phi_a(i, j, k) = phi[INDEX(i,j,k)];
           a_a(i, j, k) = 1.0;
           // Prepare BD Values Including the GhostBox, NX = NY = NZ
-          h11_a(i, j, k) = h11_field[INDEX(i,j,k)]/pw3(NX)
+          h11_a(i, j, k) = h11_field[INDEX(i,j,k)]/pw3(NX);
           w11_a(i, j, k) = 0;
-          h12_a(i, j, k) = h12_field[INDEX(i,j,k)]/pw3(NX)
+          /*
+          h12_a(i, j, k) = h12_field[INDEX(i,j,k)]/pw3(NX);
           w12_a(i, j, k) = 0;
-          h13_a(i, j, k) = h13_field[INDEX(i,j,k)]/pw3(NX)
+          h13_a(i, j, k) = h13_field[INDEX(i,j,k)]/pw3(NX);
           w13_a(i, j, k) = 0;
-          h22_a(i, j, k) = h22_field[INDEX(i,j,k)]/pw3(NX)
+          h22_a(i, j, k) = h22_field[INDEX(i,j,k)]/pw3(NX);
           w22_a(i, j, k) = 0;
-          h23_a(i, j, k) = h23_field[INDEX(i,j,k)]/pw3(NX)
+          h23_a(i, j, k) = h23_field[INDEX(i,j,k)]/pw3(NX);
           w23_a(i, j, k) = 0;
-          h33_a(i, j, k) = h33_field[INDEX(i,j,k)]/pw3(NX)
+          h33_a(i, j, k) = h33_field[INDEX(i,j,k)]/pw3(NX);
           w33_a(i, j, k) = 0;
+          */
           // if(i == 129 && j == 0 && k == 0)
           //   std::cout<<"phi_a(129, 0, 0) "<<phi_a(129, 0, 0)<<" "<<r_field[fft_index]<<" "<<fft_index<<"\n";
         }

@@ -1325,69 +1325,65 @@ bool scalar_ic_set_perturbation(
   std::cout<<phi_0<<" "<<max_phi<<"\n";
   bd_handler->fillBoundary(phi._array, phi.nx, phi.ny, phi.nz);
   /* Raw Data Generation For Sclar Field Stored phi._array Member Variable Used For Perturbation Initial Data */
-  
+  lattice_size = NX * NY * NZ;
   /* --------------------------- Set For Perturbation Field -------------------------------- */
-  CosmoArray<idx_t, real_t>  d1d1phi, d1d2phi, d1d3phi, d2d2phi, d2d3phi d3d3phi;
+  CosmoArray<idx_t, real_t>  h11_gfield, h12_gfield, h13_gfield, h22_gfield, h23_gfield h33_gfield;
+  real_t*  d1d1phi, d1d2phi, d1d3phi, d2d2phi, d2d3phi d3d3phi;
+  // 最好自己搞一个三维数组出来（防止周期性进入到 FFTW 里面！）
   // Using Macros to Solve the Repeated Calling!
-  d1d1phi.init(NX,NY,NZ);
-  d1d2phi.init(NX,NY,NZ);
-  d1d3phi.init(NX,NY,NZ);
-  d2d2phi.init(NX,NY,NZ);
-  d2d3phi.init(NX,NY,NZ);
-  d3d3phi.init(NX,NY,NZ);
+  for (int i=0; i<lattice_size; i++)
+  {
+    d1d1phi[i] = 0.0;
+    d1d2phi[i] = 0.0;
+    d1d3phi[i] = 0.0;
+    d2d2phi[i] = 0.0;
+    d2d3phi[i] = 0.0;
+    d3d3phi[i] = 0.0;
+  }
   LOOP3()
   {
-    d1d1phi[INDEX(i,j,k)] = derivative(i, j, k, 1, phi._array, dx) * derivative(i, j, k, 1, phi._array, dx);
-    d1d2phi[INDEX(i,j,k)] = derivative(i, j, k, 1, phi._array, dx) * derivative(i, j, k, 2, phi._array, dx);
-    d1d3phi[INDEX(i,j,k)] = derivative(i, j, k, 1, phi._array, dx) * derivative(i, j, k, 3, phi._array, dx);
-    d2d2phi[INDEX(i,j,k)] = derivative(i, j, k, 2, phi._array, dx) * derivative(i, j, k, 2, phi._array, dx);
-    d2d3phi[INDEX(i,j,k)] = derivative(i, j, k, 2, phi._array, dx) * derivative(i, j, k, 3, phi._array, dx);
-    d3d3phi[INDEX(i,j,k)] = derivative(i, j, k, 3, phi._array, dx) * derivative(i, j, k, 3, phi._array, dx);
+    d1d1phi[NP_INDEX(i,j,k)] = derivative(i, j, k, 1, phi._array, dx) * derivative(i, j, k, 1, phi._array, dx);
+    d1d2phi[NP_INDEX(i,j,k)] = derivative(i, j, k, 1, phi._array, dx) * derivative(i, j, k, 2, phi._array, dx);
+    d1d3phi[NP_INDEX(i,j,k)] = derivative(i, j, k, 1, phi._array, dx) * derivative(i, j, k, 3, phi._array, dx);
+    d2d2phi[NP_INDEX(i,j,k)] = derivative(i, j, k, 2, phi._array, dx) * derivative(i, j, k, 2, phi._array, dx);
+    d2d3phi[NP_INDEX(i,j,k)] = derivative(i, j, k, 2, phi._array, dx) * derivative(i, j, k, 3, phi._array, dx);
+    d3d3phi[NP_INDEX(i,j,k)] = derivative(i, j, k, 3, phi._array, dx) * derivative(i, j, k, 3, phi._array, dx);
   }
-  bd_handler->fillBoundary(d1d1phi._array, d1d1phi.nx, d1d1phi.ny, d1d1phi.nz);
-  bd_handler->fillBoundary(d1d2phi._array, d1d2phi.nx, d1d2phi.ny, d1d2phi.nz);
-  bd_handler->fillBoundary(d1d3phi._array, d1d3phi.nx, d1d3phi.ny, d1d3phi.nz);
-  bd_handler->fillBoundary(d2d2phi._array, d2d2phi.nx, d2d2phi.ny, d2d2phi.nz);
-  bd_handler->fillBoundary(d2d3phi._array, d2d3phi.nx, d2d3phi.ny, d2d3phi.nz);
-  bd_handler->fillBoundary(d3d3phi._array, d3d3phi.nx, d3d3phi.ny, d3d3phi.nz);
   // From this repository: https://github.com/ljungdahl/fftw-Poisson-example/blob/master/inplace_r2c_Poisson_example.cpp
   
-  // Implement h11 initial conditions first
-  NXX = NX + 2*STENCIL_ORDER;
-  NYY = NY + 2*STENCIL_ORDER;
-  NZZ = NZ + 2*STENCIL_ORDER;
-  xlen = NXX * dx[0];
+  // Implement h11 initial conditions first, must exclude ghost box !
+  xlen = NX * dx[0];
   fftw_complex *out;
-  out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * NXX * NYY * (NZZ/2 + 1));
+  out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * NX * NY * (NZ/2 + 1));
   double *h11_field;
-  h11_field = (real_t*) fftw_malloc(NXX * NYY * NZZ * (sizeof(real_t)));
-  fftw_plan fwrd = fftw_plan_dft_r2c_3d(NXX, NYY, NZZ, d1d1phi._array, out, FFTW_MEASURE);
-  fftw_plan bwrd = fftw_plan_dft_c2r_3d(NXX, NYY, NZZ, out, h11_field, FFTW_MEASURE);
+  h11_field = (real_t*) fftw_malloc(NX * NY * NZ * (sizeof(real_t)));
+  fftw_plan fwrd = fftw_plan_dft_r2c_3d(NX, NY, NZ, d1d1phi, out, FFTW_MEASURE);
+  fftw_plan bwrd = fftw_plan_dft_c2r_3d(NX, NY, NZ, out, h11_field, FFTW_MEASURE);
   fftw_execute(fwrd);
 
   int II,JJ;
   double k1,k2,k3;
-  for(int i=0;i<NXX;i++)
+  for(int i=0;i<NX;i++)
     {
-      if (2*i<NXX)
+      if (2*i<NX)
         II = i;
       else
-        II = NXX-i;
+        II = NX-i;
       k1 = 2*Pi*II/xlen;
                 
-      for(int j=0;j<NYY;j++)
+      for(int j=0;j<NY;j++)
         {
-          if (2*j<NYY)
+          if (2*j<NY)
             JJ = j;
           else
-            JJ = NYY - j;
+            JJ = NY - j;
           k2 = 2*Pi*JJ/xlen;
                         
-          for (int k=0;k<(NZZ/2 + 1);k++)
+          for (int k=0;k<(NZ/2 + 1);k++)
             {
               k3 = 2*PI*k/xlen;
               double fac = (pow(k1,2)+pow(k2,2)+pow(k3,2))/(16 * PI);
-              FFT_Idex = (NZZ/2+1)*NYY*i + (NZZ/2+1)*j + k;
+              FFT_Idex = (NZ/2+1)*NY*i + (NZ/2+1)*j + k;
               if (fabs(fac) < 1e-14)
               {
                 out[FFT_Index][0] = 0.0;
@@ -1402,6 +1398,39 @@ bool scalar_ic_set_perturbation(
         }
     }
   fftw_execute(bwrd);
+  h11_gfield.init(NX,NY,NZ);
+  h12_gfield.init(NX,NY,NZ);
+  h13_gfield.init(NX,NY,NZ);
+  h22_gfield.init(NX,NY,NZ);
+  h23_gfield.init(NX,NY,NZ);
+  h33_gfield.init(NX,NY,NZ);
+  LOOP3()
+  {
+    h11_gfield[INDEX(i,j,k)] = h11_field[NP_INDEX(i,j,k)]/lattice_size;
+    h12_gfield[INDEX(i,j,k)] = h12_field[NP_INDEX(i,j,k)]/lattice_size;
+    h13_gfield[INDEX(i,j,k)] = h13_field[NP_INDEX(i,j,k)]/lattice_size;
+    h22_gfield[INDEX(i,j,k)] = h22_field[NP_INDEX(i,j,k)]/lattice_size;
+    h23_gfield[INDEX(i,j,k)] = h23_field[NP_INDEX(i,j,k)]/lattice_size;
+    h33_gfield[INDEX(i,j,k)] = h33_field[NP_INDEX(i,j,k)]/lattice_size;
+  }
+  bd_handler->fillBoundary(h11_gfield._array, h11_gfield.nx, h11_gfield.ny, h11_gfield.nz);
+  bd_handler->fillBoundary(h12_gfield._array, h12_gfield.nx, h12_gfield.ny, h12_gfield.nz);
+  bd_handler->fillBoundary(h13_gfield._array, h13_gfield.nx, h13_gfield.ny, h13_gfield.nz);
+  bd_handler->fillBoundary(h22_gfield._array, h22_gfield.nx, h22_gfield.ny, h22_gfield.nz);
+  bd_handler->fillBoundary(h23_gfield._array, h23_gfield.nx, h23_gfield.ny, h23_gfield.nz);
+  bd_handler->fillBoundary(h33_gfield._array, h33_gfield.nx, h33_gfield.ny, h33_gfield.nz);
+  real_t* test;
+  for (int i=0; i<lattice_size; i++)
+  {
+    test[i] = 0;
+  }
+  double max_test = 0.0;
+  LOOP3()
+  {
+    test[NP_INDEX(i,j,k)] = fabs(laplacian(i,j,k,h11_gfield._array,dx) + 16 * PI * d1d1phi[NP_INDEX(i,j,k)]);
+    max_test = std::max(max_text, test[NP_INDEX(i, j, k)]);
+  }
+  std::cout<<"The Largest Error of Initial Conditions Setting is: "<< max_test << "\n";
   /* ------------------------------------------------------------------------------------ */
 
   double tot_r = 0, tot_v = 0.0;
@@ -1441,7 +1470,7 @@ bool scalar_ic_set_perturbation(
           phi_a(i, j, k) = phi[INDEX(i,j,k)];
           a_a(i, j, k) = 1.0;
           // Prepare BD Values Including the GhostBox, NX = NY = NZ
-          h11_a(i, j, k) = h11_field[INDEX(i,j,k)]/pw3(NX);
+          h11_a(i, j, k) = h11_gfield[INDEX(i,j,k)];
           w11_a(i, j, k) = 0;
           /*
           h12_a(i, j, k) = h12_field[INDEX(i,j,k)]/pw3(NX);

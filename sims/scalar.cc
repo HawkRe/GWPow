@@ -500,7 +500,7 @@ void ScalarSim::initializeLevelData(
      
 
    if (refine_schedule)
-   {
+   {// fill data
      refine_schedule->fillData(0.0);
      // It is null if this is the bottom level.
    }

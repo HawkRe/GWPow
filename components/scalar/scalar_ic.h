@@ -18,14 +18,13 @@ using namespace SAMRAI;
 #define INDEX(i,j,k) \
   (STENCIL_ORDER * (1 + (NX+ 2*STENCIL_ORDER) + (NX+ 2*STENCIL_ORDER) * (NY+ 2*STENCIL_ORDER))        \
    + (i) + (j) * (NX+ 2*STENCIL_ORDER) + (k) * (NX+ 2*STENCIL_ORDER) * (NY+ 2*STENCIL_ORDER))
-
 #define LOOP3()  \
   for(int i=0; i<NX; ++i) \
     for(int j=0; j<NY; ++j) \
       for(int k=0; k<NZ; ++k)
 #define NP_INDEX(i,j,k) ((NZ)*(NY)*(i) + (NZ)*(j) + (k))
+#define NBP_INDEX(i,j,k) ((NZ + 2*STENCIL_ORDER)*(NY + 2*STENCIL_ORDER)*(i+STENCIL_ORDER) + (NZ + 2*STENCIL_ORDER)*(j+STENCIL_ORDER) + (k+STENCIL_ORDER))
 #define FFT_NP_INDEX(i,j,k) ((NZ/2+1)*NY*(i) + (NZ/2+1)*(j) + (k))
-
 
 namespace cosmo
 {

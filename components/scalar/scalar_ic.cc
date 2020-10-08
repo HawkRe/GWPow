@@ -114,12 +114,9 @@ bool scalar_ic_set_oscillon(
   //  double * phi = new double[(NX+2*STENCIL_ORDER) * (NY+2*STENCIL_ORDER) * (NZ+2*STENCIL_ORDER)];
   CosmoArray<idx_t, real_t>  phi;
  /* Add Variables For Perturbation Field */
-  CosmoArray<idx_t, real_t>  h11;
-  CosmoArray<idx_t, real_t>  w11;
+
   /* ----------------------------------- */
   phi.init(NX, NY, NZ); // All Zero 
-  h11.init(NX, NY, NZ);
-  w11.init(NX, NY, NZ); // Default Initialization Being Zero including GhostBox!
   //  std::vector<double> phi(NX*NY*NZ, phi_0);
   
   LOOP3()
@@ -1324,35 +1321,41 @@ bool scalar_ic_set_perturbation(
   }
   std::cout<<phi_0<<" "<<max_phi<<"\n";
   bd_handler->fillBoundary(phi._array, phi.nx, phi.ny, phi.nz);
+  /* ------------------- Preparing for Data -------------------------- */
+  arr_t phi_array;
+  const hier::Box& ghbox = bssn->DIFFchi_a_pdata->getGhostBox();
+  const int * lower = &ghbox.lower()[0];
+  const int * upper = &ghbox.upper()[0];
+  for(int k = lower[2]; k <= upper[2]; k++)
+    {
+      for(int j = lower[1]; j <= upper[1]; j++)
+      {
+        for(int i = lower[0]; i <= upper[0]; i++)
+        {
+          phi_array(i, j, k) = phi[NBP_INDEX(i,j,k)];
+        }
+      }
+    }
   /* Raw Data Generation For Sclar Field Stored phi._array Member Variable Used For Perturbation Initial Data */
-  lattice_size = NX * NY * NZ;
+  int lattice_size = NX * NY * NZ;
   /* --------------------------- Set For Perturbation Field -------------------------------- */
-  CosmoArray<idx_t, real_t>  h11_gfield, h12_gfield, h13_gfield, h22_gfield, h23_gfield h33_gfield;
-  real_t*  d1d1phi, d1d2phi, d1d3phi, d2d2phi, d2d3phi d3d3phi;
+  CosmoArray<idx_t, real_t>  h11_gfield;
+  h11_gfield.init(NX,NY,NZ);
+  double*  d1d1phi;
   // 最好自己搞一个三维数组出来（防止周期性进入到 FFTW 里面！）
   // Using Macros to Solve the Repeated Calling!
   for (int i=0; i<lattice_size; i++)
   {
     d1d1phi[i] = 0.0;
-    d1d2phi[i] = 0.0;
-    d1d3phi[i] = 0.0;
-    d2d2phi[i] = 0.0;
-    d2d3phi[i] = 0.0;
-    d3d3phi[i] = 0.0;
   }
   LOOP3()
   {
-    d1d1phi[NP_INDEX(i,j,k)] = derivative(i, j, k, 1, phi._array, dx) * derivative(i, j, k, 1, phi._array, dx);
-    d1d2phi[NP_INDEX(i,j,k)] = derivative(i, j, k, 1, phi._array, dx) * derivative(i, j, k, 2, phi._array, dx);
-    d1d3phi[NP_INDEX(i,j,k)] = derivative(i, j, k, 1, phi._array, dx) * derivative(i, j, k, 3, phi._array, dx);
-    d2d2phi[NP_INDEX(i,j,k)] = derivative(i, j, k, 2, phi._array, dx) * derivative(i, j, k, 2, phi._array, dx);
-    d2d3phi[NP_INDEX(i,j,k)] = derivative(i, j, k, 2, phi._array, dx) * derivative(i, j, k, 3, phi._array, dx);
-    d3d3phi[NP_INDEX(i,j,k)] = derivative(i, j, k, 3, phi._array, dx) * derivative(i, j, k, 3, phi._array, dx);
+    d1d1phi[NP_INDEX(i,j,k)] = derivative(i, j, k, 1, phi_array, dx) * derivative(i, j, k, 1, phi_array, dx);
   }
   // From this repository: https://github.com/ljungdahl/fftw-Poisson-example/blob/master/inplace_r2c_Poisson_example.cpp
   
   // Implement h11 initial conditions first, must exclude ghost box !
-  xlen = NX * dx[0];
+  double xlen = NX * dx[0];
   fftw_complex *out;
   out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex) * NX * NY * (NZ/2 + 1));
   double *h11_field;
@@ -1369,7 +1372,7 @@ bool scalar_ic_set_perturbation(
         II = i;
       else
         II = NX-i;
-      k1 = 2*Pi*II/xlen;
+      k1 = 2*PI*II/xlen;
                 
       for(int j=0;j<NY;j++)
         {
@@ -1377,13 +1380,13 @@ bool scalar_ic_set_perturbation(
             JJ = j;
           else
             JJ = NY - j;
-          k2 = 2*Pi*JJ/xlen;
+          k2 = 2*PI*JJ/xlen;
                         
           for (int k=0;k<(NZ/2 + 1);k++)
             {
               k3 = 2*PI*k/xlen;
               double fac = (pow(k1,2)+pow(k2,2)+pow(k3,2))/(16 * PI);
-              FFT_Idex = (NZ/2+1)*NY*i + (NZ/2+1)*j + k;
+              int FFT_Index = (NZ/2+1)*NY*i + (NZ/2+1)*j + k;
               if (fabs(fac) < 1e-14)
               {
                 out[FFT_Index][0] = 0.0;
@@ -1398,37 +1401,32 @@ bool scalar_ic_set_perturbation(
         }
     }
   fftw_execute(bwrd);
-  h11_gfield.init(NX,NY,NZ);
-  h12_gfield.init(NX,NY,NZ);
-  h13_gfield.init(NX,NY,NZ);
-  h22_gfield.init(NX,NY,NZ);
-  h23_gfield.init(NX,NY,NZ);
-  h33_gfield.init(NX,NY,NZ);
   LOOP3()
-  {
+  {// think it carefully before using it!
     h11_gfield[INDEX(i,j,k)] = h11_field[NP_INDEX(i,j,k)]/lattice_size;
-    h12_gfield[INDEX(i,j,k)] = h12_field[NP_INDEX(i,j,k)]/lattice_size;
-    h13_gfield[INDEX(i,j,k)] = h13_field[NP_INDEX(i,j,k)]/lattice_size;
-    h22_gfield[INDEX(i,j,k)] = h22_field[NP_INDEX(i,j,k)]/lattice_size;
-    h23_gfield[INDEX(i,j,k)] = h23_field[NP_INDEX(i,j,k)]/lattice_size;
-    h33_gfield[INDEX(i,j,k)] = h33_field[NP_INDEX(i,j,k)]/lattice_size;
   }
   bd_handler->fillBoundary(h11_gfield._array, h11_gfield.nx, h11_gfield.ny, h11_gfield.nz);
-  bd_handler->fillBoundary(h12_gfield._array, h12_gfield.nx, h12_gfield.ny, h12_gfield.nz);
-  bd_handler->fillBoundary(h13_gfield._array, h13_gfield.nx, h13_gfield.ny, h13_gfield.nz);
-  bd_handler->fillBoundary(h22_gfield._array, h22_gfield.nx, h22_gfield.ny, h22_gfield.nz);
-  bd_handler->fillBoundary(h23_gfield._array, h23_gfield.nx, h23_gfield.ny, h23_gfield.nz);
-  bd_handler->fillBoundary(h33_gfield._array, h33_gfield.nx, h33_gfield.ny, h33_gfield.nz);
   real_t* test;
   for (int i=0; i<lattice_size; i++)
   {
     test[i] = 0;
   }
+  arr_t h11_gfield_array;
+  for(int k = lower[2]; k <= upper[2]; k++)
+    {
+      for(int j = lower[1]; j <= upper[1]; j++)
+      {
+        for(int i = lower[0]; i <= upper[0]; i++)
+        { // must be careful!
+          h11_gfield_array(i, j, k) = h11_gfield[NBP_INDEX(i,j,k)];
+        }
+      }
+    }
   double max_test = 0.0;
   LOOP3()
   {
-    test[NP_INDEX(i,j,k)] = fabs(laplacian(i,j,k,h11_gfield._array,dx) + 16 * PI * d1d1phi[NP_INDEX(i,j,k)]);
-    max_test = std::max(max_text, test[NP_INDEX(i, j, k)]);
+    test[NP_INDEX(i,j,k)] = fabs(laplacian(i,j,k,h11_gfield_array,dx) + 16 * PI * d1d1phi[NP_INDEX(i,j,k)]);
+    max_test = std::max(max_test, test[NP_INDEX(i, j, k)]);
   }
   std::cout<<"The Largest Error of Initial Conditions Setting is: "<< max_test << "\n";
   /* ------------------------------------------------------------------------------------ */
@@ -1556,4 +1554,6 @@ bool scalar_ic_set_perturbation(
     }
   }
   return 1;
+}
+
 }

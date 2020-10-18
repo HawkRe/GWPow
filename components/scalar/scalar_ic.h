@@ -29,7 +29,6 @@ using namespace SAMRAI;
 namespace cosmo
 {
 
-  
 void scalar_ic_set_semianalytic_test(
   const std::shared_ptr<hier::PatchHierarchy>& hierarchy,
   idx_t ln, BSSN * bssn, Scalar * scalar,
@@ -63,12 +62,6 @@ bool scalar_ic_set_scalar_gaussian_random(
   const std::shared_ptr<hier::PatchHierarchy>& hierarchy,
   idx_t ln, BSSN * bssn, Scalar * scalar,
   std::shared_ptr<tbox::Database> cosmo_scalar_db);
-
- bool scalar_ic_set_scalar_gaussian_random_defrost(
-  const std::shared_ptr<hier::PatchHierarchy>& hierarchy,
-  idx_t ln, BSSN * bssn, Scalar * scalar,
-  std::shared_ptr<tbox::Database> cosmo_scalar_db);
-
 bool scalar_ic_set_perturbation(
   const std::shared_ptr<hier::PatchHierarchy>& hierarchy,
   idx_t ln, BSSN * bssn, Scalar * scalar,

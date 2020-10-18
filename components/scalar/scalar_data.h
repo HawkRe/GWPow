@@ -6,7 +6,7 @@ namespace cosmo
 typedef struct {
 
   // field values
-  real_t phi, Pi, psi1, psi2, psi3;
+  real_t phi, Pi;
   real_t h11, h12, h13, h22, h23, h33;
   real_t w11, w12, w13, w22, w23, w33;
   // derivatives of fields
@@ -15,7 +15,6 @@ typedef struct {
   real_t d1psi1, d2psi1, d3psi1;
   real_t d1psi2, d2psi2, d3psi2;
   real_t d1psi3, d2psi3, d3psi3;
-  
 } ScalarData;
 
 }

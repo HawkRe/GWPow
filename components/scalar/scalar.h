@@ -17,7 +17,7 @@ using namespace SAMRAI;
 
 namespace cosmo
 {
- 
+
 class Scalar
 {
 public:
@@ -138,53 +138,48 @@ public:
   real_t ev_phi(BSSNData *bd, ScalarData *sd, const real_t dx[]);
   real_t ev_Pi(BSSNData *bd, ScalarData *sd, const real_t dx[]);  
   /* psi1 seems unnecessary for FRLW Based Simulation */
-  real_t ev_psi1(BSSNData *bd, ScalarData *sd, const real_t dx[]);
-  real_t ev_psi2(BSSNData *bd, ScalarData *sd, const real_t dx[]);
-  real_t ev_psi3(BSSNData *bd, ScalarData *sd, const real_t dx[]);
   /* ------------------------------------------------ */
   /*         Add Pertubation Field Evolution           */
   real_t ev_h11(BSSNData *bd, ScalarData *sd, const real_t dx[]);
-  real_t ev_h12(BSSNData *bd, ScalarData *sd, const real_t dx[]);
-  real_t ev_h13(BSSNData *bd, ScalarData *sd, const real_t dx[]);
-  real_t ev_h22(BSSNData *bd, ScalarData *sd, const real_t dx[]);
-  real_t ev_h23(BSSNData *bd, ScalarData *sd, const real_t dx[]);
-  real_t ev_h33(BSSNData *bd, ScalarData *sd, const real_t dx[]);
   real_t ev_w11(BSSNData *bd, ScalarData *sd, const real_t dx[]);
+
+  real_t ev_h12(BSSNData *bd, ScalarData *sd, const real_t dx[]);
   real_t ev_w12(BSSNData *bd, ScalarData *sd, const real_t dx[]);
+
+  real_t ev_h13(BSSNData *bd, ScalarData *sd, const real_t dx[]);
   real_t ev_w13(BSSNData *bd, ScalarData *sd, const real_t dx[]);
+
+  real_t ev_h22(BSSNData *bd, ScalarData *sd, const real_t dx[]);
   real_t ev_w22(BSSNData *bd, ScalarData *sd, const real_t dx[]);
+
+  real_t ev_h23(BSSNData *bd, ScalarData *sd, const real_t dx[]);
   real_t ev_w23(BSSNData *bd, ScalarData *sd, const real_t dx[]);
+
+  real_t ev_h33(BSSNData *bd, ScalarData *sd, const real_t dx[]);
   real_t ev_w33(BSSNData *bd, ScalarData *sd, const real_t dx[]);
 
   /*                      Boundary Points Evolution                         */
   real_t ev_phi_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim);
   real_t ev_Pi_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim);  
-  real_t ev_psi1_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim);
-  real_t ev_psi2_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim);
-  real_t ev_psi3_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim);
   /*                          Add Pertubation Field BD                                   */
   real_t ev_h11_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim);
-  real_t ev_h12_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim);
-  real_t ev_h13_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim);
-  real_t ev_h22_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim);
-  real_t ev_h23_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim);
-  real_t ev_h33_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim);
-
   real_t ev_w11_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim);
+
+  real_t ev_h12_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim);
   real_t ev_w12_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim);
+
+  real_t ev_h13_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim);
   real_t ev_w13_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim);
+
+  real_t ev_h22_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim);
   real_t ev_w22_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim);
+
+  real_t ev_h23_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim);
   real_t ev_w23_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim);
+
+  real_t ev_h33_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim);
   real_t ev_w33_bd(BSSNData *bd, ScalarData *sd, const real_t dx[], int l_idx, int codim);
   /* ---------------------------------------------------------------------------------- */
-
-
-  
-  
-  
-
-
-  
 
 };
 

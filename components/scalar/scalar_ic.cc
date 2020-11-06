@@ -496,7 +496,7 @@ bool scalar_ic_set_scalar_gaussian_random(
   real_t rho_K_matter = 3.0/PI/8.0;
   real_t peak_amplitude_frac = cosmo_scalar_db->getDoubleWithDefault("peak_amplitude_frac", 0.0);
   real_t peak_amplitude = peak_amplitude_frac*(1.0); // scaling in arb. units
-  real_t q_coef = cosmo_scalar_db->getDoubleWithDefault("q_coef", 0.0);
+  real_t q_coef = cosmo_scalar_db->getDoubleWithDefault("q_coef", 0.0); // Use the quantities
   real_t ic_spec_cut = cosmo_scalar_db->getDoubleWithDefault("ic_spec_cut", 0.0);
 
   real_t peak_k = 100;
@@ -650,7 +650,7 @@ bool scalar_ic_set_scalar_gaussian_random(
   LOOP3()
   {
     idx_t fft_index = NP_INDEX(i,j,k);
-    phi[INDEX(i, j, k)] = phi_0 + 16.0*r_field[fft_index]/pow(L[0],1.5);
+    phi[INDEX(i, j, k)] = phi_0 + 16.0*r_field[fft_index]/(pow(L[0],1.5) * sqrt(q_coef));
     // if(i == 0 && j == 0)
     //   std::cout<<r_field[fft_index]<<" ";
     // if(i == 0 && j == 0)
@@ -934,8 +934,8 @@ bool scalar_ic_set_perturbation(
           //   rand_mag = sqrt(cosmo_power_spectrum) *1.5;
           
 
-          f_field[fft_index][0] = scale*rand_mag*cos(rand_phase);
-          f_field[fft_index][1] = scale*rand_mag*sin(rand_phase);
+          f_field[fft_index][0] = scale*rand_mag*cos(rand_phase)/46;
+          f_field[fft_index][1] = scale*rand_mag*sin(rand_phase)/46;
 
         }
 	else if( fabs(px) < (real_t) 256/2+1 + 0.01 && fabs(py) < (real_t) 256/2+1 + 0.01 && fabs(pz) < (real_t) 256/2+1 + 0.01)
@@ -1341,17 +1341,23 @@ bool scalar_ic_set_perturbation(
           phi_a(i, j, k) = phi[INDEX(i,j,k)];
           a_a(i, j, k) = 1.0;
           // Prepare BD Values Including the GhostBox, NX = NY = NZ
-          h11_a(i, j, k) = h11_gfield[INDEX(i,j,k)];
+          // h11_a(i, j, k) = h11_gfield[INDEX(i,j,k)];
+	  h11_a(i, j, k) = 0;
           w11_a(i, j, k) = 0;
-          h12_a(i, j, k) = h12_gfield[INDEX(i,j,k)];
+          //h12_a(i, j, k) = h12_gfield[INDEX(i,j,k)];
+	  h12_a(i, j, k) = 0;
           w12_a(i, j, k) = 0;
-          h13_a(i, j, k) = h13_gfield[INDEX(i,j,k)];
+          //h13_a(i, j, k) = h13_gfield[INDEX(i,j,k)];
+	  h13_a(i, j, k) = 0;
           w13_a(i, j, k) = 0;
-          h22_a(i, j, k) = h22_gfield[INDEX(i,j,k)];
+          //h22_a(i, j, k) = h22_gfield[INDEX(i,j,k)];
+	  h22_a(i, j, k) = 0;
           w22_a(i, j, k) = 0;
-          h23_a(i, j, k) = h23_gfield[INDEX(i,j,k)];
+          //h23_a(i, j, k) = h23_gfield[INDEX(i,j,k)];
+	  h23_a(i, j, k) = 0;
           w23_a(i, j, k) = 0;
-          h33_a(i, j, k) = h33_gfield[INDEX(i,j,k)];
+          //h33_a(i, j, k) = h33_gfield[INDEX(i,j,k)];
+	  h33_a(i, j, k) = 0;
           w33_a(i, j, k) = 0;
           //test_error_a(i,k,k) = test_error[INDEX(i,j,k)];
           // if(i == 129 && j == 0 && k == 0)
